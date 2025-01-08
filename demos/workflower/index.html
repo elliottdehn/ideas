@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Multi-Variable Runner (Enhanced)</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <!-- CodeMirror CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.9/lib/codemirror.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.9/theme/eclipse.min.css" />
+
+  <style>
+    body {
+      background-color: #f8f9fa;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container {
+      margin-top: 30px;
+      max-width: 1200px;
+    }
+
+    .footer-text {
+      text-align: center;
+      margin-top: auto;
+      padding: 20px;
+      color: #6c757d;
+      font-size: 0.9rem;
+    }
+
+    .var-block,
+    .step-block {
+      border: 1px solid #ced4da;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      background: #ffffff;
+    }
+
+    .var-block h5,
+    .step-block h5 {
+      margin-bottom: 15px;
+    }
+
+    .CodeMirror {
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      height: auto;
+    }
+
+    .snippet-editor {
+      min-height: 80px;
+    }
+
+    #results {
+      white-space: pre-wrap;
+      background-color: #f1f3f5;
+      border: 1px solid #ced4da;
+      padding: 15px;
+      border-radius: 5px;
+      margin-top: 20px;
+      min-height: 100px;
+    }
+
+    .step-type-btns {
+      margin-bottom: 1rem;
+    }
+
+    .http-config {
+      background: #fcfcfc;
+      padding: 10px;
+      border: 1px dashed #ddd;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <!-- Page Header -->
+    <div class="text-center mb-4">
+      <h1 class="fw-bold mb-2">Multi-Variable Runner</h1>
+      <p class="text-muted fs-6">
+        A handy in-browser tool for chaining variable definitions, JavaScript snippets, filters, and HTTP calls.
+      </p>
+    </div>
+
+    <!-- Overview / Instructions -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <h4 class="card-title">How It Works</h4>
+        <ul class="mb-3">
+          <li><strong>1)</strong> Define any number of <em>variables</em> at the top. Each variable can contain
+            <code>{{placeholders}}</code>.
+          </li>
+          <li><strong>2)</strong> Add <em>steps</em> of three types:
+            <ul>
+              <li><strong>Snippet</strong> – JavaScript code (in vm2) that transforms an <em>input</em> (either literal
+                or
+                a variable). You can optionally store its result in a new variable.</li>
+              <li><strong>Filter</strong> – JavaScript code that must return a boolean. If it returns
+                <code>false</code>,
+                the sequence stops.</li>
+              <li><strong>HTTP</strong> – Configurable HTTP request. Optionally store the response in a variable.</li>
+            </ul>
+          </li>
+          <li><strong>3)</strong> Click <em>“Run All Steps”</em> to POST all data to <code>/runSequence</code>.</li>
+          <li><strong>4)</strong> You can <em>“Test”</em> individual HTTP steps by running only up to that step.</li>
+        </ul>
+        <p class="mb-0">
+          Server-side logic must handle these step types in <code>/runSequence</code>.
+          <em>Keep reading to define your variables and steps below.</em>
+        </p>
+      </div>
+    </div>
+
+    <!-- Variables Section -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <h4 class="card-title mb-3">1) Define Variables</h4>
+        <p class="text-muted">
+          Each variable is a name and a JSON-ish value that can contain <code>{{placeholders}}</code> referencing other
+          variables.
+        </p>
+        <div id="vars"></div>
+        <button id="addVarBtn" class="btn btn-secondary">+ Add Variable</button>
+      </div>
+    </div>
+
+    <!-- Steps Section -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <h4 class="card-title mb-3">2) Build Steps</h4>
+        <p class="text-muted">
+          Add your steps in the desired order. A snippet or filter step can embed <code>{{placeholders}}</code>,
+          and an HTTP step can do so in the URL, headers, or body.
+        </p>
+        <div class="step-type-btns">
+          <button id="addSnippetBtn" class="btn btn-secondary me-2">+ Add Snippet Step</button>
+          <button id="addFilterBtn" class="btn btn-warning me-2">+ Add Filter Step</button>
+          <button id="addHttpBtn" class="btn btn-info">+ Add HTTP Step</button>
+        </div>
+        <div id="steps"></div>
+      </div>
+    </div>
+
+    <!-- Run All -->
+    <div class="d-grid mb-4">
+      <button id="runAllBtn" class="btn btn-primary btn-lg">
+        Run All Steps
+      </button>
+    </div>
+
+    <!-- Results Section -->
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">Results</h4>
+        <div id="results"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-text">
+    Powered by <strong>vm2</strong> + <strong>CodeMirror</strong><br />
+    <em>Note:</em> The server must handle <code>"snippet"</code>, <code>"filter"</code>, and <code>"http"</code> step
+    types in <code>/runSequence</code>.
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- CodeMirror JS -->
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.9/lib/codemirror.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.9/mode/javascript/javascript.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.9/addon/edit/closebrackets.js"></script>
+
+  <script>
+    /*
+      We'll store three step types in the DOM:
+        - snippet
+        - filter
+        - http
+    */
+
+    // DOM references
+    const varsContainer = document.getElementById('vars');
+    const stepsContainer = document.getElementById('steps');
+    const addVarBtn = document.getElementById('addVarBtn');
+    const addSnippetBtn = document.getElementById('addSnippetBtn');
+    const addFilterBtn = document.getElementById('addFilterBtn');
+    const addHttpBtn = document.getElementById('addHttpBtn');
+    const runAllBtn = document.getElementById('runAllBtn');
+    const resultsDiv = document.getElementById('results');
+
+    let varCounter = 0;
+    let stepCounter = 0;
+
+    // CodeMirror references
+    const varValueEditors = {};    // varValueEditors[varId]
+    const snippetEditors = {};     // snippetEditors[stepId]
+    const filterEditors = {};      // filterEditors[stepId]
+    const literalEditors = {};     // snippet-literal editors
+    const httpHeadersEditors = {}; // httpHeadersEditors[stepId]
+    const httpBodyEditors = {};    // { cookiesEd, bodyEd } for each stepId
+
+    /********************************
+     * Create a new variable block
+     ********************************/
+    function createVarBlock() {
+      varCounter++;
+      const varId = varCounter;
+
+      const block = document.createElement('div');
+      block.className = 'var-block';
+      block.dataset.varId = String(varId);
+
+      block.innerHTML = `
+        <h5>Variable #${varId}</h5>
+        <div class="row mb-2">
+          <div class="col-4">
+            <label>Variable Name</label>
+            <input type="text" class="form-control varNameInput" placeholder="e.g. myVar" />
+          </div>
+          <div class="col-8">
+            <label>Literal Value (JSON-ish, can {{embed}} placeholders)</label>
+            <textarea class="form-control varValueInput" rows="2">"Some Value"</textarea>
+          </div>
+        </div>
+      `;
+      varsContainer.appendChild(block);
+
+      // Turn that <textarea> into CodeMirror
+      const ta = block.querySelector('.varValueInput');
+      const ed = CodeMirror.fromTextArea(ta, {
+        mode: { name: 'javascript', json: true },
+        theme: 'eclipse',
+        autoCloseBrackets: true,
+        lineNumbers: false,
+        lineWrapping: true
+      });
+      varValueEditors[varId] = ed;
+    }
+
+    /********************************
+     * Helper: update variable dropdowns
+     ********************************/
+    function updateVarDropdowns() {
+      // gather top-level var names
+      const varBlocks = document.querySelectorAll('.var-block');
+      const varNames = [];
+      varBlocks.forEach(b => {
+        const nameInp = b.querySelector('.varNameInput');
+        const n = nameInp.value.trim();
+        if (n) varNames.push(n);
+      });
+
+      // gather storeVar from steps
+      const storeVarInputs = document.querySelectorAll('.storeVarInput');
+      storeVarInputs.forEach(inp => {
+        const v = inp.value.trim();
+        if (v && !varNames.includes(v)) varNames.push(v);
+      });
+
+      // snippet steps might have inputMode=var => need to fill .varSelect
+      const varSelects = document.querySelectorAll('.varSelect');
+      varSelects.forEach(sel => {
+        const currentVal = sel.value;
+        while (sel.firstChild) sel.removeChild(sel.firstChild);
+
+        const placeholderOpt = document.createElement('option');
+        placeholderOpt.value = '';
+        placeholderOpt.textContent = '-- select a variable --';
+        sel.appendChild(placeholderOpt);
+
+        varNames.forEach(n => {
+          const opt = document.createElement('option');
+          opt.value = n;
+          opt.textContent = n;
+          sel.appendChild(opt);
+        });
+        sel.value = currentVal;
+      });
+    }
+
+    /********************************
+     * Create a snippet step
+     ********************************/
+    function createSnippetStep() {
+      stepCounter++;
+      const stepId = stepCounter;
+
+      const block = document.createElement('div');
+      block.className = 'step-block';
+      block.dataset.stepId = String(stepId);
+      block.dataset.stepType = 'snippet';
+
+      block.innerHTML = `
+        <h5>Snippet Step #${stepId}</h5>
+        <div class="mb-2">
+          <label>Snippet (JS, can {{embed}} placeholders)</label>
+          <textarea class="snippetTextArea">(function transform(input) {\n  return input + 1;\n})</textarea>
+        </div>
+
+        <div class="row mb-2">
+          <div class="col-4">
+            <label>Input Mode</label>
+            <select class="form-select inputModeSelect">
+              <option value="literal">Literal</option>
+              <option value="var">Variable</option>
+            </select>
+          </div>
+          <div class="col-8">
+            <div class="snippet-literal-block">
+              <label>Literal Input (JSON-ish, can {{embed}} placeholders)</label>
+              <textarea class="snippetLiteralInput" rows="2">123</textarea>
+            </div>
+            <div class="snippet-var-block" style="display: none;">
+              <label>Select Variable</label>
+              <select class="form-select varSelect"></select>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-2">
+          <label>Store result as variable (optional)</label>
+          <input type="text" class="form-control storeVarInput" placeholder="e.g. resultVar" />
+        </div>
+      `;
+      stepsContainer.appendChild(block);
+
+      // snippet editor
+      const snipTA = block.querySelector('.snippetTextArea');
+      const snipEd = CodeMirror.fromTextArea(snipTA, {
+        mode: 'javascript',
+        theme: 'eclipse',
+        autoCloseBrackets: true,
+        lineNumbers: true,
+        lineWrapping: true,
+        className: 'snippet-editor'
+      });
+      snippetEditors[stepId] = snipEd;
+
+      // literal input editor
+      const litTA = block.querySelector('.snippetLiteralInput');
+      const litEd = CodeMirror.fromTextArea(litTA, {
+        mode: { name: 'javascript', json: true },
+        theme: 'eclipse',
+        autoCloseBrackets: true,
+        lineNumbers: false,
+        lineWrapping: true
+      });
+      literalEditors[stepId] = litEd;
+
+      // toggling
+      const modeSel = block.querySelector('.inputModeSelect');
+      const litBlock = block.querySelector('.snippet-literal-block');
+      const varBlock = block.querySelector('.snippet-var-block');
+      modeSel.addEventListener('change', () => {
+        if (modeSel.value === 'var') {
+          litBlock.style.display = 'none';
+          varBlock.style.display = 'block';
+        } else {
+          litBlock.style.display = 'block';
+          varBlock.style.display = 'none';
+        }
+        updateVarDropdowns();
+      });
+
+      updateVarDropdowns();
+    }
+
+    /********************************
+     * Create a filter step
+     ********************************/
+    function createFilterStep() {
+      stepCounter++;
+      const stepId = stepCounter;
+
+      const block = document.createElement('div');
+      block.className = 'step-block';
+      block.dataset.stepId = String(stepId);
+      block.dataset.stepType = 'filter';
+
+      block.innerHTML = `
+        <h5>Filter Step #${stepId}</h5>
+        <p class="text-muted">
+          This snippet <strong>must return a boolean</strong>.
+          If <code>false</code>, the sequence stops immediately.
+        </p>
+        <label>Filter Snippet (JS)</label>
+        <textarea class="filterTextArea">(function checkCondition() {\n  // must return true/false\n  return true;\n})</textarea>
+      `;
+      stepsContainer.appendChild(block);
+
+      // filter snippet editor
+      const filterTA = block.querySelector('.filterTextArea');
+      const filterEd = CodeMirror.fromTextArea(filterTA, {
+        mode: 'javascript',
+        theme: 'eclipse',
+        autoCloseBrackets: true,
+        lineNumbers: true,
+        lineWrapping: true,
+        className: 'snippet-editor'
+      });
+      filterEditors[stepId] = filterEd;
+    }
+
+    /********************************
+     * Create an HTTP step
+     ********************************/
+    function createHttpStep() {
+      stepCounter++;
+      const stepId = stepCounter;
+
+      const block = document.createElement('div');
+      block.className = 'step-block';
+      block.dataset.stepId = String(stepId);
+      block.dataset.stepType = 'http';
+
+      block.innerHTML = `
+        <h5>HTTP Step #${stepId}</h5>
+        <div class="http-config mb-2">
+          <div class="row mb-2">
+            <div class="col-3">
+              <label>Method</label>
+              <select class="form-select httpMethodSelect">
+                <option value="GET">GET</option>
+                <option value="POST">POST</option>
+                <option value="PUT">PUT</option>
+                <option value="PATCH">PATCH</option>
+                <option value="DELETE">DELETE</option>
+                <option value="HEAD">HEAD</option>
+                <option value="OPTIONS">OPTIONS</option>
+              </select>
+            </div>
+            <div class="col-9">
+              <label>URL (can {{embed}} placeholders)</label>
+              <input type="text" class="form-control httpUrlInput" placeholder="https://api.example.com/data" />
+            </div>
+          </div>
+
+          <div class="mb-2">
+            <label>Headers (JSON-ish, can {{embed}} placeholders)</label>
+            <textarea class="httpHeadersInput" rows="2">{\n  "Content-Type": "application/json"\n}</textarea>
+          </div>
+
+          <div class="mb-2">
+            <label>Cookies (raw string or JSON-ish, appended as 'Cookie' header if not empty)</label>
+            <textarea class="httpCookiesInput" rows="1">""</textarea>
+          </div>
+
+          <div class="mb-2">
+            <label>Body (JSON-ish or text, can {{embed}} placeholders)</label>
+            <textarea class="httpBodyInput" rows="2"></textarea>
+          </div>
+        </div>
+
+        <div class="mb-2">
+          <label>Store response as variable (optional)</label>
+          <input type="text" class="form-control storeVarInput" placeholder="e.g. myResponseVar" />
+        </div>
+
+        <!-- A Test button to run up to here -->
+        <button class="btn btn-sm btn-warning testHttpBtn">Test This Step</button>
+      `;
+      stepsContainer.appendChild(block);
+
+      // Turn headers & cookies & body into CodeMirror
+      const headersTA = block.querySelector('.httpHeadersInput');
+      const headersEd = CodeMirror.fromTextArea(headersTA, {
+        mode: { name: 'javascript', json: true },
+        theme: 'eclipse',
+        autoCloseBrackets: true,
+        lineNumbers: false,
+        lineWrapping: true
+      });
+
+      const cookiesTA = block.querySelector('.httpCookiesInput');
+      const cookiesEd = CodeMirror.fromTextArea(cookiesTA, {
+        mode: { name: 'javascript', json: true },
+        theme: 'eclipse',
+        autoCloseBrackets: true,
+        lineNumbers: false,
+        lineWrapping: true
+      });
+
+      const bodyTA = block.querySelector('.httpBodyInput');
+      const bodyEd = CodeMirror.fromTextArea(bodyTA, {
+        mode: { name: 'javascript', json: true },
+        theme: 'eclipse',
+        autoCloseBrackets: true,
+        lineNumbers: false,
+        lineWrapping: true
+      });
+
+      httpHeadersEditors[stepId] = headersEd;
+      httpBodyEditors[stepId] = { cookiesEd, bodyEd };
+
+      // "Test" button
+      const testBtn = block.querySelector('.testHttpBtn');
+      testBtn.addEventListener('click', () => {
+        testHttpStep(stepId);
+      });
+
+      updateVarDropdowns();
+    }
+
+    /********************************
+     * testHttpStep: reuses /runSequence
+     * but only includes steps up to this one
+     ********************************/
+    async function testHttpStep(stepId) {
+      resultsDiv.textContent = `Testing HTTP step #${stepId}...`;
+
+      const { variables, steps } = gatherData();
+      // We'll run up to step # stepId
+      const partialSteps = [];
+      for (const s of steps) {
+        partialSteps.push(s);
+        if (s._id === stepId) break;
+      }
+
+      // Now call /runSequence with just that subset
+      try {
+        const resp = await fetch('/runSequence', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ variables, steps: partialSteps })
+        });
+        const data = await resp.json();
+        if (data.error) {
+          resultsDiv.textContent = 'Test error: ' + data.error;
+          return;
+        }
+        // The last step in data.steps should be the HTTP step result
+        if (!data.steps || data.steps.length === 0) {
+          resultsDiv.textContent = 'No steps found in partial result.';
+          return;
+        }
+        const finalStep = data.steps[data.steps.length - 1];
+        let output = '=== Test HTTP Step Results ===\n';
+        if (finalStep.error) {
+          output += `Error: ${finalStep.error}\n`;
+        } else {
+          output += `Result: ${JSON.stringify(finalStep.result, null, 2)}\n`;
+        }
+        output += '\n=== Partial Vars ===\n';
+        if (data.vars) {
+          output += JSON.stringify(data.vars, null, 2);
+        }
+        resultsDiv.textContent = output;
+      } catch (err) {
+        resultsDiv.textContent = `Test request failed: ${err.message}`;
+      }
+    }
+
+    /********************************
+     * gatherData: collects all variables & steps
+     ********************************/
+    function gatherData() {
+      const variables = [];
+      document.querySelectorAll('.var-block').forEach(block => {
+        const varId = block.dataset.varId;
+        const nameInp = block.querySelector('.varNameInput');
+        const varName = nameInp.value.trim();
+        const ed = varValueEditors[varId];
+        const literalValue = ed.getValue();
+        if (varName) {
+          variables.push({ varName, literalValue });
+        }
+      });
+
+      const steps = [];
+      document.querySelectorAll('.step-block').forEach(block => {
+        const stepType = block.dataset.stepType;
+        const sid = Number(block.dataset.stepId);
+
+        if (stepType === 'snippet') {
+          const snip = snippetEditors[sid].getValue();
+          const modeSel = block.querySelector('.inputModeSelect');
+          const inputMode = modeSel.value;
+          let inputValue = '';
+          if (inputMode === 'var') {
+            const varSel = block.querySelector('.varSelect');
+            inputValue = varSel.value;
+          } else {
+            const litEd = literalEditors[sid];
+            inputValue = litEd.getValue();
+          }
+          const storeVar = block.querySelector('.storeVarInput').value.trim();
+
+          steps.push({
+            _id: sid,
+            type: 'snippet',
+            snippet: snip,
+            inputMode,
+            inputValue,
+            storeVar
+          });
+        } else if (stepType === 'filter') {
+          // filter snippet
+          const filt = filterEditors[sid].getValue();
+          steps.push({
+            _id: sid,
+            type: 'filter',
+            snippet: filt
+            // no input, no storeVar
+          });
+        } else if (stepType === 'http') {
+          // http
+          const methodSel = block.querySelector('.httpMethodSelect');
+          const urlInp = block.querySelector('.httpUrlInput').value.trim();
+
+          const hEd = httpHeadersEditors[sid];
+          const headersVal = hEd.getValue();
+
+          const co = httpBodyEditors[sid].cookiesEd;
+          const cookiesVal = co.getValue();
+
+          const bo = httpBodyEditors[sid].bodyEd;
+          const bodyVal = bo.getValue();
+
+          const storeVar = block.querySelector('.storeVarInput').value.trim();
+
+          steps.push({
+            _id: sid,
+            type: 'http',
+            method: methodSel.value,
+            url: urlInp,
+            headers: headersVal,
+            cookies: cookiesVal,
+            body: bodyVal,
+            storeVar
+          });
+        }
+      });
+      return { variables, steps };
+    }
+
+    /********************************
+     * Run All Steps => /runSequence
+     ********************************/
+    runAllBtn.addEventListener('click', async () => {
+      resultsDiv.textContent = 'Running entire sequence...';
+
+      const { variables, steps } = gatherData();
+
+      try {
+        const resp = await fetch('/runSequence', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ variables, steps })
+        });
+        const data = await resp.json();
+        if (data.error) {
+          resultsDiv.textContent = 'Error: ' + data.error;
+          return;
+        }
+        let output = '=== Step Results ===\n';
+        if (data.steps) {
+          data.steps.forEach((s, idx) => {
+            output += `Step #${idx + 1} (${s.type}):\n`;
+            if (s.error) {
+              output += `  Error: ${s.error}\n`;
+            } else {
+              output += `  Result: ${JSON.stringify(s.result, null, 2)}\n`;
+            }
+            if (s.snippetAfterEmbed) {
+              output += `  Snippet after embed: ${s.snippetAfterEmbed}\n`;
+            }
+            output += '\n';
+          });
+        }
+        if (data.vars) {
+          output += '=== Final Variables ===\n';
+          output += JSON.stringify(data.vars, null, 2);
+        }
+        resultsDiv.textContent = output;
+      } catch (err) {
+        resultsDiv.textContent = `Run error: ${err.message}`;
+      }
+    });
+
+    // Initialize one variable on page load
+    createVarBlock();
+
+    // Hook up the step-creation buttons
+    addVarBtn.addEventListener('click', createVarBlock);
+    addSnippetBtn.addEventListener('click', createSnippetStep);
+    addFilterBtn.addEventListener('click', createFilterStep);
+    addHttpBtn.addEventListener('click', createHttpStep);
+
+    // Whenever user changes varName or storeVar => re-check var dropdowns
+    document.addEventListener('input', e => {
+      if (e.target.matches('.varNameInput') || e.target.matches('.storeVarInput')) {
+        updateVarDropdowns();
+      }
+    });
+  </script>
+</body>
+
+</html>

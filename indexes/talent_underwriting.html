@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Talent Underwriting | Risk Assessment & Guarantee</title>
+  <style>
+    :root {
+      --primary: #1a5f7a;
+      --accent: #2ecc71;
+      --dark: #2c3e50;
+      --light: #f8f9fa;
+      --warning: #e74c3c;
+      --glow: #4facfe;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+      color: var(--dark);
+    }
+
+    .hero {
+      background: linear-gradient(135deg, var(--primary) 0%, #2980b9 100%);
+      color: white;
+      padding: 120px 20px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero h1 {
+      font-size: 3.5em;
+      margin: 0 0 20px;
+      line-height: 1.2;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero-tagline {
+      font-size: 1.5em;
+      margin-bottom: 40px;
+      font-weight: 300;
+    }
+
+    .process-steps {
+      display: flex;
+      justify-content: center;
+      margin: 50px auto;
+      max-width: 1000px;
+      gap: 30px;
+      padding: 0 20px;
+    }
+
+    .step {
+      flex: 1;
+      text-align: center;
+      position: relative;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+    }
+
+    .step:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      right: -25px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: white;
+      font-size: 24px;
+    }
+
+    .cta-button {
+      background: white;
+      color: var(--primary);
+      padding: 20px 40px;
+      border-radius: 8px;
+      font-size: 1.2em;
+      font-weight: bold;
+      text-decoration: none;
+      transition: transform 0.3s ease;
+      display: inline-block;
+      margin-top: 40px;
+    }
+
+    .cta-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .outcomes {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 40px;
+      padding: 80px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .outcome {
+      text-align: left;
+      padding: 30px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .outcome.positive {
+      border-top: 4px solid var(--accent);
+    }
+
+    .outcome.negative {
+      border-top: 4px solid var(--warning);
+    }
+
+    .outcome h3 {
+      font-size: 1.5em;
+      margin: 0 0 15px;
+      color: var(--primary);
+    }
+
+    .tiers {
+      background: var(--light);
+      padding: 80px 20px;
+    }
+
+    .tier-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+      max-width: 1200px;
+      margin: 40px auto 0;
+      padding: 0 20px;
+    }
+
+    .tier-card {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .tier-card.popular {
+      background: linear-gradient(145deg, #ffffff, #f8f9ff);
+      animation: glow 3s infinite;
+      border: 2px solid var(--glow);
+      transform: scale(1.05);
+    }
+
+    .popular-label {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--glow);
+      color: white;
+      padding: 4px 16px;
+      border-radius: 20px;
+      font-size: 0.9em;
+      font-weight: bold;
+      box-shadow: 0 2px 10px rgba(79, 172, 254, 0.3);
+    }
+
+    @keyframes glow {
+      0% {
+        box-shadow: 0 5px 15px rgba(79, 172, 254, 0.2);
+      }
+
+      50% {
+        box-shadow: 0 5px 25px rgba(79, 172, 254, 0.4),
+          0 0 50px rgba(79, 172, 254, 0.1);
+      }
+
+      100% {
+        box-shadow: 0 5px 15px rgba(79, 172, 254, 0.2);
+      }
+    }
+
+    .tier-card.popular:hover {
+      transform: scale(1.08);
+      box-shadow: 0 8px 25px rgba(79, 172, 254, 0.3),
+        0 0 60px rgba(79, 172, 254, 0.2);
+    }
+
+    .price {
+      font-size: 2em;
+      font-weight: bold;
+      color: var(--primary);
+      margin: 20px 0;
+    }
+
+    .features {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .features li {
+      margin: 15px 0;
+      padding-left: 30px;
+      position: relative;
+    }
+
+    .features li::before {
+      content: "✓";
+      color: var(--accent);
+      position: absolute;
+      left: 0;
+      font-weight: bold;
+    }
+
+    footer {
+      background: var(--dark);
+      color: white;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 2.5em;
+      margin-bottom: 40px;
+      color: var(--primary);
+    }
+
+    @media (max-width: 768px) {
+      .outcomes {
+        grid-template-columns: 1fr;
+      }
+
+      .process-steps {
+        flex-direction: column;
+      }
+
+      .step:not(:last-child)::after {
+        content: "↓";
+        right: 50%;
+        top: auto;
+        bottom: -25px;
+        transform: translateX(50%);
+      }
+
+      .hero h1 {
+        font-size: 2.5em;
+      }
+
+      .hero-tagline {
+        font-size: 1.2em;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <section class="hero">
+    <h1>We Underwrite Your Next Hire</h1>
+    <p class="hero-tagline">Submit your candidate. We evaluate the risk. If we underwrite them, you're guaranteed 2x
+      your money back if they fail.</p>
+
+    <div class="process-steps">
+      <div class="step">
+        <h3>Submit</h3>
+        <p>Share your candidate's profile</p>
+      </div>
+      <div class="step">
+        <h3>Evaluate</h3>
+        <p>We assess their risk profile</p>
+      </div>
+      <div class="step">
+        <h3>Underwrite</h3>
+        <p>Get our coverage decision</p>
+      </div>
+      <div class="step">
+        <h3>Guarantee</h3>
+        <p>2x refund if we're wrong</p>
+      </div>
+    </div>
+
+    <a href="#contact" class="cta-button">Start Underwriting Process →</a>
+  </section>
+
+  <section>
+    <h2 class="section-title">Underwriting Outcomes</h2>
+    <div class="outcomes">
+      <div class="outcome negative">
+        <h3>If We Don't Underwrite</h3>
+        <p>Our analysis reveals concerning risk factors. We provide our detailed findings, but won't offer our
+          guarantee. This happens for ~40% of candidates we evaluate.</p>
+        <ul class="features">
+          <li>Detailed risk analysis</li>
+          <li>Red flag identification</li>
+          <li>Alternative candidate recommendations</li>
+        </ul>
+      </div>
+      <div class="outcome positive">
+        <h3>If We Underwrite</h3>
+        <p>Your candidate passes our rigorous risk assessment. We'll back them with our 200% guarantee - if they fail to
+          meet performance standards, you get double your money back.</p>
+        <ul class="features">
+          <li>Full risk assessment report</li>
+          <li>Performance prediction metrics</li>
+          <li>200% money-back guarantee</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="tiers">
+    <h2 class="section-title">Underwriting Packages</h2>
+    <div class="tier-cards">
+      <div class="tier-card">
+        <h3>Standard Risk Assessment</h3>
+        <div class="price">5% of Salary</div>
+        <ul class="features">
+          <li>Basic risk evaluation</li>
+          <li>200% guarantee if underwritten</li>
+          <li>5-day assessment period</li>
+        </ul>
+      </div>
+      <div class="tier-card">
+        <h3>Enhanced Due Diligence</h3>
+        <div class="price">10% of Salary</div>
+        <ul class="features">
+          <li>Deep background investigation</li>
+          <li>200% guarantee if underwritten</li>
+          <li>50% refund for voluntary exits</li>
+          <li>3-day assessment period</li>
+        </ul>
+      </div>
+      <div class="tier-card popular">
+        <div class="popular-label">Most Popular</div>
+        <h3>Executive Risk Analysis</h3>
+        <div class="price">15% of Salary</div>
+        <ul class="features">
+          <li>Comprehensive executive vetting</li>
+          <li>200% guarantee if underwritten</li>
+          <li>100% refund for voluntary exits</li>
+          <li>Strategic fit assessment</li>
+          <li>24-hour assessment period</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <a href="#contact" class="cta-button">Begin Underwriting Process</a>
+    <p style="margin-top: 30px;">© 2024 Talent Underwriting | De-risking Human Capital</p>
+  </footer>
+</body>
+
+</html>

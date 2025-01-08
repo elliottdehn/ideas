@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="PledgeMarket - Own the Future of Global Trade">
+  <title>PledgeMarket | Perpetual Shipping Medallions</title>
+  <!-- Charts.js for data visualization -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+  <style>
+    /*
+    DESIGN SYSTEM NOTES:
+    - Ocean-inspired color palette deepens as user scrolls
+    - Consistent spacing using CSS custom properties
+    - Typography optimized for readability and impact
+    - Interactive elements maintain professionalism
+    */
+    :root {
+      /* Core palette - ocean depths theme */
+      --deep-blue: #001B3D;
+      /* Deepest ocean - footer */
+      --ocean-blue: #003366;
+      /* Mid-depth - hero background */
+      --bright-blue: #0066CC;
+      /* Surface water - interactive elements */
+      --highlight: #00A3FF;
+      /* Sunlight on water - accent */
+      --success: #00D084;
+      /* Growth indicators */
+      --warning: #FF8A00;
+      /* Alert states */
+
+      /* Supporting colors for readability */
+      --text: #0A1F44;
+      /* Primary text */
+      --text-light: #4E5D78;
+      /* Secondary text */
+      --background: #F7F9FC;
+      /* Page background */
+      --surface: #FFFFFF;
+      /* Card backgrounds */
+
+      /* Typography system */
+      --font-main: 'Inter', -apple-system, system-ui, sans-serif;
+      --font-display: 'SF Pro Display', var(--font-main);
+
+      /* Unified spacing scale */
+      --space-unit: 8px;
+      --space-xs: calc(var(--space-unit) * 1);
+      --space-sm: calc(var(--space-unit) * 2);
+      --space-md: calc(var(--space-unit) * 3);
+      --space-lg: calc(var(--space-unit) * 5);
+      --space-xl: calc(var(--space-unit) * 8);
+    }
+
+    /* Reset for consistency */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Base styles */
+    body {
+      font-family: var(--font-main);
+      background: var(--background);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /*
+    HERO SECTION:
+    - Dynamic gradient background
+    - Animated overlay for visual interest
+    - Maintains readability with contrast
+    */
+    .hero {
+      background: linear-gradient(135deg, var(--deep-blue), var(--ocean-blue));
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      padding: var(--space-xl);
+    }
+
+    /* Animated background overlay */
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background:
+        radial-gradient(circle at 20% 80%, rgba(0, 163, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(0, 208, 132, 0.1) 0%, transparent 50%);
+      animation: pulse 15s infinite alternate;
+    }
+
+    @keyframes pulse {
+      0% {
+        opacity: 0.5;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+
+    /* Hero content layout */
+    .hero-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+      color: white;
+      text-align: center;
+    }
+
+    /* Typography styles */
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: 4.5rem;
+      font-weight: 700;
+      margin-bottom: var(--space-md);
+      line-height: 1.2;
+    }
+
+    .hero-tagline {
+      font-size: 1.5rem;
+      max-width: 800px;
+      margin: 0 auto var(--space-xl);
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    /*
+    METRICS DISPLAY:
+    - Clean, card-based layout
+    - Subtle hover interactions
+    - Clear hierarchy of information
+    */
+    .metrics-display {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: var(--space-lg);
+      margin: var(--space-xl) auto;
+      max-width: 1200px;
+      padding: 0 var(--space-lg);
+    }
+
+    .metric-card {
+      background: var(--surface);
+      padding: var(--space-lg);
+      border-radius: 12px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .metric-card:hover {
+      transform: translateY(-10px);
+    }
+
+    .metric-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--bright-blue);
+      margin-bottom: var(--space-xs);
+    }
+
+    .metric-label {
+      color: var(--text-light);
+      font-size: 1.1rem;
+    }
+
+    /*
+    MARKET IMPACT:
+    - Clear value proposition cards
+    - Visual connection to ocean theme
+    - Professional presentation
+    */
+    .market-impact {
+      background: var(--surface);
+      padding: var(--space-xl) var(--space-lg);
+    }
+
+    .impact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: var(--space-lg);
+      max-width: 1200px;
+      margin: var(--space-xl) auto;
+    }
+
+    .impact-card {
+      padding: var(--space-lg);
+      border-left: 4px solid var(--bright-blue);
+      background: var(--background);
+      border-radius: 0 12px 12px 0;
+    }
+
+    /*
+    DEMO SECTION:
+    - Clear data visualization
+    - Industry-focused metrics
+    - Professional presentation of data
+    */
+    .demo-section {
+      background: var(--deep-blue);
+      color: white;
+      padding: var(--space-xl) var(--space-lg);
+      text-align: center;
+    }
+
+    .demo-container {
+      max-width: 1000px;
+      margin: var(--space-xl) auto;
+      background: rgba(255, 255, 255, 0.1);
+      padding: var(--space-lg);
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+    }
+
+    .chart-description {
+      max-width: 800px;
+      margin: 0 auto var(--space-lg);
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1.1rem;
+      line-height: 1.6;
+    }
+
+    /*
+    CALL TO ACTION:
+    - Strong visual connection to ocean theme
+    - Clear call to action
+    - Professional yet inviting
+    */
+    .cta-section {
+      background: linear-gradient(135deg, var(--ocean-blue), var(--bright-blue));
+      padding: var(--space-xl) var(--space-lg);
+      text-align: center;
+      color: white;
+    }
+
+    .cta-button {
+      display: inline-block;
+      padding: var(--space-md) var(--space-xl);
+      background: white;
+      color: var(--ocean-blue);
+      text-decoration: none;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 1.2rem;
+      transition: all 0.3s ease;
+      margin-top: var(--space-lg);
+    }
+
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    /*
+    RESPONSIVE DESIGN:
+    - Maintains readability at all sizes
+    - Preserves visual hierarchy
+    - Adapts layout for smaller screens
+    */
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 3rem;
+      }
+
+      .hero-tagline {
+        font-size: 1.2rem;
+      }
+
+      .metric-card {
+        margin: 0 var(--space-md);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <section class="hero">
+    <div class="hero-content">
+      <h1>The Economic Layer<br>of Global Shipping</h1>
+      <p class="hero-tagline"><b>Transform container shipping capacity into perpetual, liquid assets.</b><br><i>Own the
+          rights to
+          ship anywhere, anytime, forever.</i></p>
+
+      <div class="metrics-display">
+        <div class="metric-card">
+          <div class="metric-value">$50,000</div>
+          <div class="metric-label">Insurance Coverage Per Container</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">∞</div>
+          <div class="metric-label">Perpetual Shipping Rights</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">24/7</div>
+          <div class="metric-label">Global Trading Access</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="market-impact">
+    <div class="impact-grid">
+      <div class="impact-card">
+        <h3>For Shippers</h3>
+        <p>Lock in permanent shipping capacity. No more volatile spot rates or seasonal surges. One medallion, infinite
+          shipments, predictable costs.</p>
+      </div>
+      <div class="impact-card">
+        <h3>For Carriers</h3>
+        <p>Transform capacity into tradable assets. Create new revenue streams and strengthen customer relationships
+          through medallion issuance.</p>
+      </div>
+      <div class="impact-card">
+        <h3>For Traders</h3>
+        <p>Access a new asset class backed by real-world utility. Trade fractional medallions in a liquid market with
+          clear fundamentals.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Optimizing Container Utilization</h2>
+    <p class="chart-description">
+      Historical data shows that medallion holders achieve significant improvements in container utilization rates over
+      time.
+      By providing perpetual shipping rights, medallions enable better route optimization, reduced empty container
+      movements,
+      and more efficient capacity planning. This chart demonstrates typical utilization improvements as shippers adapt
+      their
+      operations to maximize medallion value.
+    </p>
+    <div class="demo-container">
+      <canvas id="utilizationChart"></canvas>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <h2>Become a Founding Partner</h2>
+    <p>We're partnering with leading shipping companies to launch the first medallion issuance. Join us in reshaping
+      global logistics.</p>
+    <a href="mailto:partners@pledgemarket.com?subject=Founding%20Partner%20Inquiry" class="cta-button">Contact
+      Partnership Team</a>
+  </section>
+
+  <script>
+    /*
+    CHART CONFIGURATION:
+    - Professional data visualization
+    - Industry-standard metrics
+    - Clear progression story
+    */
+    const ctx = document.getElementById('utilizationChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Q1', 'Q2', 'Q3', 'Q4', 'Q5', 'Q6', 'Q7', 'Q8'],
+        datasets: [{
+          label: 'Container Utilization Rate',
+          data: [25, 35, 45, 55, 65, 75, 80, 85],
+          borderColor: '#00A3FF',
+          backgroundColor: 'rgba(0, 163, 255, 0.1)',
+          fill: true,
+          tension: 0.4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            min: 0,
+            max: 100,
+            title: {
+              display: true,
+              text: 'Utilization Rate (%)',
+              color: 'rgba(255, 255, 255, 0.8)',
+              font: {
+                size: 14
+              }
+            },
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            },
+            ticks: {
+              color: 'rgba(255, 255, 255, 0.8)',
+              callback: function (value) {
+                return value + '%';
+              }
+            }
+          },
+          x: {
+            title: {
+              display: true,
+              text: 'Quarters After Medallion Acquisition',
+              color: 'rgba(255, 255, 255, 0.8)',
+              font: {
+                size: 14
+              }
+            },
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            },
+            ticks: {
+              color: 'rgba(255, 255, 255, 0.8)'
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            labels: {
+              color: 'rgba(255, 255, 255, 0.8)'
+            }
+          },
+          tooltip: {
+            mode: 'index',
+            intersect: false
+          }
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>

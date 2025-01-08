@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FEARS: Secure, Private, Backend-Free Basics</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+        Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background: #1a1a1a;
+      color: #f4f4f4;
+      line-height: 1.6;
+    }
+
+    header {
+      background: #000;
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 3rem;
+      letter-spacing: -1px;
+      color: #ff3f81;
+    }
+
+    header p {
+      font-size: 1.2rem;
+      color: #ccc;
+      max-width: 600px;
+      margin: 1rem auto 0;
+    }
+
+    .content {
+      padding: 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    h2,
+    h3 {
+      color: #ff3f81;
+      margin-top: 2rem;
+    }
+
+    p {
+      margin: 1rem 0;
+      color: #eee;
+    }
+
+    pre,
+    code {
+      background: #111;
+      padding: 0.75rem;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      overflow: auto;
+      color: #ff3f81;
+    }
+
+    code {
+      padding: 0.2rem 0.4rem;
+    }
+
+    a {
+      color: #ff3f81;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .cta {
+      text-align: center;
+      margin: 3rem 0;
+    }
+
+    .cta a {
+      display: inline-block;
+      background: #ff3f81;
+      color: #000;
+      padding: 0.75rem 1.5rem;
+      border-radius: 4px;
+      font-weight: bold;
+      text-decoration: none;
+      transition: background 0.2s ease-in-out;
+    }
+
+    .cta a:hover {
+      background: #ff65a0;
+    }
+
+    .footer {
+      margin: 3rem 0 0;
+      text-align: center;
+      color: #555;
+      font-size: 0.8rem;
+    }
+
+    .divider {
+      height: 2px;
+      background: #333;
+      margin: 2rem 0;
+    }
+
+    .highlight {
+      color: #ff3f81;
+      font-weight: bold;
+    }
+
+    ul {
+      margin: 1rem 0 1rem 1.5rem;
+      list-style: circle;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>FEARS</h1>
+    <p>Full Encryption At Rest Storage</p>
+    <p><i>Secure, Private, Backend-Free Basics for Authentication, Authorization, Data, and Payments</i></p>
+  </header>
+
+  <div class="content">
+
+    <h2>Why FEARS?</h2>
+    <p>Modern operators fear data breaches, complicated infrastructure, and compliance headaches. FEARS was built to
+      turn those fears into trust, security, and simplicity. With FEARS, you get:</p>
+    <ul>
+      <li><strong>Fully Encrypted At Rest:</strong> Data is encrypted client-side and never stored in plaintext.</li>
+      <li><strong>Backend-Free Integration:</strong> Just plug our API into your frontend—no servers needed.</li>
+      <li><strong>Privacy-First:</strong> We never see your sensitive data, ensuring compliance and user trust.</li>
+      <li><strong>Extensible:</strong> Start with secure storage and authentication; scale into payments, multisig
+        workflows, and more.</li>
+    </ul>
+
+    <div class="divider"></div>
+
+    <h2>Core Offerings</h2>
+    <h3>1. Authentication & Authorization via Username</h3>
+    <p>Validate users through an email/phone pair (handled by us) that maps to a secure username. Operators interact
+      only with the username—no passwords, no raw emails/phones. This username can later form the basis for multisig
+      schemes, collaborative accounts, or shared data access.</p>
+
+    <p>Example flow:</p>
+    <pre><code>
+// Validate a username from your frontend (CORS-friendly):
+fetch("https://api.fears.example/validate-username", {
+  method: "POST",
+  headers: { "Content-Type": "application/json", "Authorization": "Bearer YOUR_API_KEY" },
+  body: JSON.stringify({ username: "user123" })
+})
+  .then(res => res.json())
+  .then(data => {
+    if (data.valid) {
+      console.log("Username validated!");
+    } else {
+      console.log("Validation failed.");
+    }
+  })
+  .catch(err => console.error("Error:", err));
+</code></pre>
+
+    <h3>2. FEARS Storage</h3>
+    <p>Store up to <span class="highlight">64 MB</span> of encrypted data per user, fully client-side encrypted. Perfect
+      for user preferences, session tokens, or lightweight application data—without running a backend server. Just
+      encrypt before sending it to our API, and we’ll store it encrypted at rest.</p>
+
+    <p>Storing Encrypted Data (Operator-side):</p>
+    <pre><code>
+// Example: Store encrypted data against a username
+const encryptedData = encrypt(JSON.stringify({ theme: "dark", layout: "grid" }), PUBLIC_KEY);
+
+fetch("https://api.fears.example/store", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer YOUR_API_KEY"
+  },
+  body: JSON.stringify({ key: "username123", data: encryptedData })
+})
+  .then(res => res.json())
+  .then(response => console.log("Data stored:", response))
+  .catch(err => console.error("Error:", err));
+</code></pre>
+
+    <p>Retrieving Data:</p>
+    <pre><code>
+// Retrieve the encrypted data and decrypt it locally
+fetch("https://api.fears.example/retrieve/username123", {
+  headers: { "Authorization": "Bearer YOUR_API_KEY" }
+})
+  .then(res => res.json())
+  .then(data => {
+    const decrypted = decrypt(data.encrypted, PRIVATE_KEY);
+    console.log("Decrypted Data:", JSON.parse(decrypted));
+  })
+  .catch(err => console.error("Error:", err));
+</code></pre>
+
+    <h3>3. Billing, Payments, & Transfers</h3>
+    <p>Extend FEARS to handle billing information, payment tokens, and transfers. Users validated by our system can also
+      be linked to payment methods, enabling frictionless, secure, and cheaper-than-traditional methods of payment. Add
+      multisignature schemes to ensure N-of-M approvals for business transactions, or automatically split payments based
+      on preset ratios.</p>
+
+    <pre><code>
+// Example: Initiate a payment using a validated username
+fetch("https://api.fears.example/payment/initiate", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer YOUR_API_KEY"
+  },
+  body: JSON.stringify({ username: "username123", amount: 1000, currency: "USD" })
+})
+  .then(res => res.json())
+  .then(data => {
+    if (data.status === "pending_multisig") {
+      console.log("Waiting for additional approvals...");
+    } else if (data.status === "success") {
+      console.log("Payment completed!");
+    }
+  })
+  .catch(err => console.error("Error:", err));
+</code></pre>
+
+    <div class="divider"></div>
+
+    <h2>Use Cases</h2>
+    <ul>
+      <li><strong>Small E-Commerce</strong>: Store encrypted customer preferences, validate users via a simple username,
+        and later add payment capabilities.</li>
+      <li><strong>SaaS Apps</strong>: Offload user state management and authentication. Keep user settings in FEARS
+        without any backend.</li>
+      <li><strong>Collaborative Teams</strong>: Use multisignature usernames for shared accounts. Store encrypted
+        project data and require N-of-M approvals for sensitive actions.</li>
+      <li><strong>Privacy-First Solutions</strong>: Comply with GDPR/CCPA easily. No plaintext user data means fewer
+        legal headaches.</li>
+    </ul>
+
+    <div class="divider"></div>
+
+    <h2>Getting Started in 3 Steps</h2>
+    <ol>
+      <li><strong>Sign Up for an API Key:</strong> Visit our signup page and get your free API key. A small free tier is
+        available.</li>
+      <li><strong>Integrate Frontend-Only:</strong> Add the code snippets above directly to your frontend. No servers
+        needed.</li>
+      <li><strong>Scale as Needed:</strong> Upgrade to larger storage, add payment features, or enable multisig
+        workflows as your needs grow.</li>
+    </ol>
+
+    <div class="cta">
+      <a href="https://www.fears.example/signup" target="_blank">Get Started Now</a>
+    </div>
+
+    <div class="footer">
+      &copy; 2024 FEARS. All rights reserved. Crafted with care to eliminate your fears of data complexity.
+    </div>
+
+  </div>
+</body>
+
+</html>

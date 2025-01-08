@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Big Red Candle, Inc.</title>
+  <style>
+    /* -----------------------------
+       GLOBAL STYLES
+    ----------------------------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #fafafa;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      margin-bottom: 0.5rem;
+    }
+
+    p,
+    li {
+      margin-bottom: 1rem;
+    }
+
+    ul {
+      list-style-type: disc;
+      margin-left: 2rem;
+    }
+
+    section {
+      width: 90%;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 3rem 1rem;
+      opacity: 0;
+      /* hidden by default for fade-in animation */
+      transform: translateY(40px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+
+    section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Heading/Title styles */
+    .hero {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      background: linear-gradient(135deg, #ff7f50, #d80128);
+      color: #fff;
+      padding: 5rem 1rem;
+      border-radius: 0 0 1rem 1rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .hero h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      max-width: 700px;
+      margin-bottom: 2rem;
+    }
+
+    .hero .cta-btn {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      background: #333;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 4px;
+      transition: background 0.3s;
+    }
+
+    .hero .cta-btn:hover {
+      background: #555;
+    }
+
+    /* Content sections */
+    .section-title {
+      margin-bottom: 1.5rem;
+      font-size: 1.75rem;
+      color: #d80128;
+    }
+
+    .section-subtitle {
+      margin-bottom: 1rem;
+      font-weight: bold;
+      font-size: 1.25rem;
+      color: #333;
+    }
+
+    /* Blockquote style (optional) */
+    blockquote {
+      margin: 2rem 0;
+      padding: 1rem 1.5rem;
+      border-left: 4px solid #d80128;
+      background: #f4f4f4;
+      font-style: italic;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    footer a {
+      color: #d80128;
+      text-decoration: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- HERO SECTION -->
+  <section class="hero visible">
+    <h1>Big Red Candle, Inc.</h1>
+    <p>Unlocking Over $25 Trillion in Liquidity With Stablecoin Technology</p>
+    <a href="#overview" class="cta-btn">Explore Our Vision</a>
+  </section>
+
+  <!-- OVERVIEW -->
+  <section id="overview">
+    <h2 class="section-title">Overview</h2>
+    <p>Stablecoins are poised for explosive growth, with an estimated current market around $200B—only a fraction
+      of the potential that could exceed $25T. The key to responsible scaling lies in reducing risk by using
+      permissioned
+      blockchains as the foundational environment, then selectively bridging to public ledgers when beneficial. This
+      approach
+      paves the way for massive adoption while satisfying inevitable regulatory scrutiny.</p>
+  </section>
+
+  <!-- CORE CONCEPTS -->
+  <section>
+    <h2 class="section-title">Core Concepts</h2>
+
+    <h3 class="section-subtitle">1. Permissioned Blockchains</h3>
+    <p>Permissioned chains serve as a “risk-down” environment for scalable stablecoin issuance. They provide
+      a controlled setting to address regulatory requirements and manage systemic risk effectively.</p>
+
+    <h3 class="section-subtitle">2. Beyond “Money as Collateral”</h3>
+    <p>We tap into the $100T+ value of U.S. equities and real estate. This grants safe yields for investors and
+      low-interest mortgages for homeowners, with complex blockchain layers abstracted away from end users.</p>
+
+    <h3 class="section-subtitle">3. Inflationary Impact Management</h3>
+    <p>Injecting $25T in liquidity inevitably affects asset prices, especially real estate and equities. Rising
+      valuations help stabilize the system's solvency--but require conservative collateral management to prevent
+      runaway price spirals.</p>
+  </section>
+
+  <!-- ANTICIPATED REGULATIONS -->
+  <section>
+    <h2 class="section-title">Anticipated Regulations</h2>
+    <ul>
+      <li><strong>Asset Registration:</strong> Stablecoins pegged to other assets will likely need to register similarly
+        to
+        securities, with strict reserve requirements.</li>
+      <li><strong>Supply Caps:</strong> Regulators may impose issuance limits based on market conditions and systemic
+        risk
+        assessments.</li>
+      <li><strong>Baseline Interest:</strong> Issuers could be required to pay a minimum (1–1.5%) annual interest on
+        outstanding
+        stablecoin value, curbing “upward spiral” risks.</li>
+      <li><strong>Transparency & Audits:</strong> Mandatory quarterly disclosures of collateral and liabilities, plus
+        annual
+        third-party audits, are expected to reinforce market confidence.</li>
+    </ul>
+  </section>
+
+  <!-- WHY BIG RED CANDLE -->
+  <section>
+    <h2 class="section-title">Why Big Red Candle?</h2>
+    <p>
+      <strong>Strategic Partnerships:</strong> We work with trusted entities to secure stablecoin collateral in private
+      environments.<br><br>
+      <strong>Compliance-First Approach:</strong> Our methodology anticipates future regulations, ensuring we remain
+      ahead
+      of legal requirements.<br><br>
+      <strong>Long-Term Vision:</strong> By bridging permissioned and public blockchains, we foster sustainable growth
+      without exposing users to unnecessary volatility or systemic failures.
+    </p>
+  </section>
+
+  <!-- NEXT STEPS -->
+  <section>
+    <h2 class="section-title">Next Steps</h2>
+    <p>
+      Big Red Candle, Inc. is at the forefront of stablecoin innovation, orchestrating a responsible path to unlocking
+      trillions in new liquidity. Our permissioned-first strategy, backed by real assets and transparent governance,
+      ensures a smooth, compliant, and scalable integration into the global financial ecosystem.
+    </p>
+    <blockquote>
+      “Reach out to learn more about partnering in this next wave of decentralized finance.”
+    </blockquote>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    &copy; <span id="year"></span> Big Red Candle, Inc. |
+    <a href="mailto:info@bigredcandle.com">Contact Us</a>
+  </footer>
+
+  <script>
+    // Update footer year
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Intersection Observer for fade-in animations on scroll
+    const sections = document.querySelectorAll('section');
+    const options = {
+      threshold: 0.1
+    };
+
+    const observer = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          obs.unobserve(entry.target);
+        }
+      });
+    }, options);
+
+    sections.forEach(section => {
+      observer.observe(section);
+    });
+  </script>
+</body>
+
+</html>

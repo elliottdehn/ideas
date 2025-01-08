@@ -1,0 +1,17 @@
+{
+  "name": "candlestick",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docker": "docker build -t snippet-runner . && docker run --rm -p 3000:3000 snippet-runner"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.2",
+    "vm2": "^3.9.19"
+  }
+}
